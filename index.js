@@ -1,6 +1,27 @@
 const {ApolloServer,gql} = require('apollo-server')
 const moment = require('moment')
 
+const users =[
+    {
+        id: 1,
+        name: 'Rafael',
+        email: 'rafael.cena@hotmail.com',
+        age:30
+    },
+    {
+        id: 2,
+        name: 'Daniella',
+        email: 'faniella@hotmail.com',
+        age:30
+    },
+    {
+        id: 3,
+        name: 'Sofia',
+        email: 'sofia.cena@hotmail.com',
+        age:10
+    }
+]
+
 const typeDefs = gql`
 
     scalar Date
@@ -27,6 +48,8 @@ const typeDefs = gql`
         hora: Date
         user:User
         produtoDestaque: Product
+        numbersMega:[Int]!
+        users:[User]!
     }
 
 `
@@ -66,6 +89,12 @@ const resolvers = {
                 discount: 0.5
             }
 
+        },
+        numbersMega(){
+            return [4,8,13,27,33,54]
+        },
+        users(){
+            return users
         }
     }
 
