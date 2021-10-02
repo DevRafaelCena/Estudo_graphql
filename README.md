@@ -1,8 +1,8 @@
-# Estudo_graphql
+# Estudo de GraphQl
 projeto desenvolvido durante estudos de graphql 
 
 
-# PAra rodar o projeto
+# Para rodar o projeto
 
 - npm start
 
