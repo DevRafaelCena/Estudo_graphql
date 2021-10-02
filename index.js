@@ -50,6 +50,7 @@ const typeDefs = gql`
         produtoDestaque: Product
         numbersMega:[Int]!
         users:[User]!
+        findUser(id:ID): User
     }
 
 `
@@ -95,6 +96,11 @@ const resolvers = {
         },
         users(){
             return users
+        },
+        findUser(_,args){
+            const selected = users.filter(u => u.id == args.id)
+            return selected ? selected[0]:null
+
         }
     }
 
