@@ -14,17 +14,33 @@ const typeDefs = gql`
         vip: Boolean
     }
 
+    type Product{
+        name: String!
+        price:Float!
+        discount:Float
+        priceDiscount:Float
+    }
+
     # pontos de entrada da api
     type Query {
         hello: String
         hora: Date
         user:User
+        produtoDestaque: Product
     }
 
 `
 
 const resolvers = {
-
+    Product:{
+        priceDiscount(product){
+            if(product.discount){
+                return product.price * (1 - product.discount)
+            }else{
+                return product.price
+            }
+        }
+    },
     Query:{
         hello(){
             return "Hello!!!"
@@ -42,6 +58,14 @@ const resolvers = {
                 salary: 2.345,
                 vip:false
             }
+        },
+        produtoDestaque(){
+            return {
+                name: "Notebook",
+                price: 4.512,
+                discount: 0.5
+            }
+
         }
     }
 
