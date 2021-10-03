@@ -1,64 +1,83 @@
-const { usuarios, proximoId } = 
-    require('../../data/db')
-
-function indiceUsuario(filtro) {
-    if(!filtro) return -1
-    const { id, email } = filtro
-    if(id) {
-        return usuarios
-            .findIndex(u => u.id === id)
-    } else if(email) {
-        return usuarios
-            .findIndex(u => u.email === email)
-    }
-    return -1
-}
+const db = require('../../config/db')
+const { perfil: obterPerfil } = require('../Query/perfil')
+const { usuario: obterUsuario } = require('../Query/usuario')
 
 module.exports = {
-    // { nome, email, idade }
-    novoUsuario(_, { dados }) {
-        const emailExistente = usuarios
-            .some(u => u.email === dados.email)
+    async novoUsuario(_, { dados }) {
+        try {
+            const idsPerfis = []
+            if(dados.perfis) {
+                for(let filtro of dados.perfis) {
+                    const perfil = await obterPerfil(_, {
+                        filtro
+                    })
+                    if(perfil) idsPerfis.push(perfil.id)
+                }
+            }
 
-        if(emailExistente) {
-            throw new Error('E-mail cadastrado')
+            delete dados.perfis
+            const [ id ] = await db('usuarios')
+                .insert(dados)
+
+            for(let perfil_id of idsPerfis) {
+                await db('usuarios_perfis')
+                    .insert({ perfil_id, usuario_id: id })
+            }
+
+            return db('usuarios')
+                .where({ id }).first()
+        } catch(e) {
+            throw new Error(e.sqlMessage)
         }
-
-        const novo = {
-            id: proximoId(),
-            ...dados,
-            perfil_id: 1,
-            status: 'ATIVO'
-        }
-
-        usuarios.push(novo)
-        return novo
     },
-    excluirUsuario(_, { filtro }) {
-        const i = indiceUsuario(filtro)
-        if(i < 0) return null
-        const excluidos = 
-            usuarios.splice(i, 1)
-        return excluidos ? 
-            excluidos[0] : null
-    },
-    alterarUsuario(_, { filtro, dados }) {
-        const i = indiceUsuario(filtro)
-        if(i < 0) return null
-
-        usuarios[i].nome = dados.nome
-        usuarios[i].email = dados.email
-        if(dados.idade) {
-            usuarios[i].idade = dados.idade
+    async excluirUsuario(_, args) {
+        try {
+            const usuario = await obterUsuario(_, args)
+            if(usuario) {
+                const { id } = usuario
+                await db('usuarios_perfis')
+                    .where({ usuario_id: id }).delete()
+                await db('usuarios')
+                    .where({ id }).delete()
+            }
+            return usuario
+        } catch(e) {
+            throw new Error(e.sqlMessage)
         }
 
-        // const usuario = {
-        //     ...usuarios[i],
-        //     ...args
-        // }
+    },
+    async alterarUsuario(_, { filtro, dados }) {
+        try {
+            const usuario = await obterUsuario(_, { filtro })
+            if(usuario) {
+                const { id } = usuario
+                if(dados.perfis) {
+                    await db('usuarios_perfis')
+                        .where({ usuario_id: id }).delete()
 
-        // usuarios.splice(i, 1, usuario)
-        // return usuario
-        return usuarios[i]
+                    for(let filtro of dados.perfis) {
+                        const perfil = await obterPerfil(_, {
+                            filtro
+                        })
+                        
+                        if(perfil) {
+                            await db('usuarios_perfis')
+                                .insert({
+                                    perfil_id: perfil.id,
+                                    usuario_id: id
+                                })
+                        }
+                    }
+                }
+
+                delete dados.perfis
+                await db('usuarios')
+                    .where({ id })
+                    .update(dados)
+            }
+            return !usuario ? null : { ...usuario, ...dados }
+        } catch(e) {
+            throw new Error(e)
+        }
     }
 }
