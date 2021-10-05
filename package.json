@@ -1,22 +1,24 @@
 {
-  "name": "desafio-cap-04",
+  "name": "graphqlproject",
   "version": "1.0.0",
-  "description": "",
+  "description": "projeto desenvolvido durante estudos de graphql",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --ext js,graphql"
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevRafaelCena/Estudo_graphql.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "apollo-server": "^2.4.8",
-    "graphql": "^14.2.1",
-    "graphql-import": "^0.7.1",
-    "knex": "^0.16.3",
-    "mysql": "^2.16.0"
+  "bugs": {
+    "url": "https://github.com/DevRafaelCena/Estudo_graphql/issues"
   },
-  "devDependencies": {
-    "nodemon": "^1.18.10"
+  "homepage": "https://github.com/DevRafaelCena/Estudo_graphql#readme",
+  "dependencies": {
+    "apollo-server": "^3.3.0",
+    "graphql": "^15.6.0"
   }
 }
